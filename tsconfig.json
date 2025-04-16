@@ -1,0 +1,18 @@
+{
+  "extends": "./.wxt/tsconfig.json",
+  "compilerOptions": {
+    "allowImportingTsExtensions": true,
+    "jsx": "react-jsx",
+    "types": ["@types/chrome", "vitest/globals", "vitest/importMeta"],
+    "paths": {
+      "~": ["./src"],
+      "~/*": ["./src/*"],
+      "~~": ["."],
+      "~~/*": ["./*"]
+    },
+    "noUncheckedIndexedAccess": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "exactOptionalPropertyTypes": true
+  },
+  "include": ["**/*", "./wxt.d.ts", ".storybook/**/*"]
+}
