@@ -27,6 +27,8 @@ export default tseslint.config(
   pluginStorybook.configs["flat/recommended"],
   {
     rules: {
+      "object-shorthand": ["error", "never"],
+
       "import-x/order": [
         "error",
         {

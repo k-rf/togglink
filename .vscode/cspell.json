@@ -1,0 +1,22 @@
+{
+  "version": "0.2",
+  "gitignoreRoot": [".."],
+  "ignorePaths": [".devcontainer/", "node_modules/", "**/*.lock"],
+  "words": [
+    "commandhistory",
+    "devcontainer",
+    "esbuild",
+    "Filenaming",
+    "linebreak",
+    "notionhq",
+    "paralleldrive",
+    "Parens",
+    "remeda",
+    "sonarjs",
+    "tada",
+    "textlint",
+    "toggl",
+    "Togglink",
+    "tseslint"
+  ]
+}
