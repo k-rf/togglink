@@ -1,8 +1,7 @@
 import React from "react";
 
-import { AppRouter } from "../background";
-
-import { ChromeClientProvider } from "./context/chrome-client.context";
+import { ChromeClientProvider } from "~/contexts/chrome-client.context";
+import { AppRouter } from "~/libs/server";
 
 import type { CreateTRPCProxyClient } from "@trpc/client";
 

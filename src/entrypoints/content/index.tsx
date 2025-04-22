@@ -4,13 +4,13 @@ import { chromeLink } from "trpc-chrome/link";
 import { createIntegratedUi } from "wxt/utils/content-script-ui/integrated";
 import { defineContentScript } from "wxt/utils/define-content-script";
 
+import { AppRouter } from "~/libs/server";
+
 import { App } from "./app";
 import { AppProvider } from "./app-provider";
 
-import type { AppRouter } from "~/entrypoints/background";
-
 export default defineContentScript({
-  matches: ["*://track.toggl.com/*"],
+  matches: ["https://track.toggl.com/*"],
   main: (ctx) => {
     const port = chrome.runtime.connect();
     const chromeClient = createTRPCProxyClient<AppRouter>({

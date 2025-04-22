@@ -1,6 +1,6 @@
 import { createContext, use } from "react";
 
-import { AppRouter } from "~/entrypoints/background";
+import { AppRouter } from "~/libs/server";
 
 import type { CreateTRPCProxyClient } from "@trpc/client";
 
@@ -15,7 +15,7 @@ export const useChromeClient = () => {
   const ctx = use(ChromeClientContext);
 
   if (!ctx) {
-    throw new Error("useChromeClient must be used within a ChromeClientProvider");
+    throw new Error("`useChromeClient` は `ChromeClientProvider` 内で使用する必要があります");
   }
 
   return { chromeClient: ctx.chromeClient };

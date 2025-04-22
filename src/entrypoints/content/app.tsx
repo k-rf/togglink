@@ -1,88 +1,61 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 
-import { useChromeClient } from "./context/chrome-client.context";
+import notionLogo from "~/assets/img/notion-logo.svg";
+import { useUpdateDailyNotePage } from "~/features/togglink/hooks/use-update-daily-note-page";
+import { Entry } from "~/features/togglink/models/entry";
+import { findElement } from "~/utils/find-element";
 
-interface Entry {
-  description: string;
-  project: string;
-  client: string;
-}
+// TODO: リストビューにも対応する。
 
 export const App = () => {
-  const { chromeClient } = useChromeClient();
+  const { updateDailyNotePage } = useUpdateDailyNotePage();
 
-  const [calendar, setCalendar] = useState<Element | null>(null);
   const [popupHeader, setPopupHeader] = useState<Element | null>(null);
   const [entry, setEntry] = useState<Entry>();
 
-  const observer = new MutationObserver(() => {
-    const popup = document.querySelector('[class*="TimeEntryContextPopup"]');
+  const observer = useMemo(
+    () =>
+      new MutationObserver(() => {
+        const popup = document.querySelector('[class*="TimeEntryContextPopup"]');
 
-    if (!popup) return;
-    setPopupHeader(popup.querySelector('[class*="ContextPopupControls"]') ?? null);
+        if (!popup) return;
+        setPopupHeader(popup.querySelector('[class*="ContextPopupControls"]') ?? null);
 
-    const description = popup.querySelector('[class*="DescriptionTrigger"]')?.textContent;
-    const projectAndClient = popup.querySelector('[class*="ProjectContentContainer"]')?.textContent;
-    const [project, client] = projectAndClient?.split(" ") ?? ["", ""];
+        const description = popup.querySelector('[class*="DescriptionTrigger"]')?.textContent;
+        const projectAndClient = popup.querySelector(
+          '[class*="ProjectContentContainer"]',
+        )?.textContent;
+        const [project, client] = projectAndClient?.split(" ") ?? ["", ""];
 
-    if (!description || !project || !client) return;
-    setEntry({ description: description, project: project, client: client });
-  });
-
-  const handleClick = async () => {
-    if (!entry) return;
-
-    const todoPage = await chromeClient.findTodoPage.query({ title: entry.description });
-    const dailyNotePage = await chromeClient.findDailyNotePage.query({ date: "2025-04-21" });
-
-    if (!todoPage || !dailyNotePage) return;
-
-    await chromeClient.updateDailyNotePage.query({
-      dailyNotePageId: dailyNotePage.id,
-      todoPageId: todoPage.id,
-    });
-  };
+        if (!description || !project || !client) return;
+        setEntry({ description: description, project: project, client: client });
+      }),
+    [],
+  );
 
   useEffect(() => {
     findElement('[class*="CalendarContainer"]').then((calendar) => {
-      setCalendar(calendar);
+      observer.observe(calendar, { childList: true, subtree: true });
     });
-  }, []);
-
-  useEffect(() => {
-    if (!calendar) return;
-
-    observer.observe(calendar, { childList: true, subtree: true });
 
     return () => {
       observer.disconnect();
     };
-  }, [calendar, observer]);
+  }, [observer]);
+
+  const handleClick = async () => {
+    if (!entry) return;
+
+    updateDailyNotePage({ entry: entry, date: "2025-04-22" });
+  };
 
   return popupHeader
     ? createPortal(
         <button type="button" onClick={handleClick}>
-          Notion
+          <img src={notionLogo} alt="Notion" width={24} />
         </button>,
         popupHeader,
       )
     : null;
-};
-
-const findElement = (selector: string, root: Element = document.body, infinite = false) => {
-  return new Promise<Element>((resolve) => {
-    const element = document.querySelector(selector);
-    if (element) resolve(element);
-
-    const observer = new MutationObserver(() => {
-      const element = document.querySelector(selector);
-      if (element) {
-        if (!infinite) observer.disconnect();
-        resolve(element);
-      }
-    });
-
-    observer.observe(root, { childList: true, subtree: true });
-  });
 };
