@@ -1,61 +1,83 @@
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import { createPortal } from "react-dom";
 
 import notionLogo from "~/assets/img/notion-logo.svg";
 import { useUpdateDailyNotePage } from "~/features/togglink/hooks/use-update-daily-note-page";
-import { Entry } from "~/features/togglink/models/entry";
-import { findElement } from "~/utils/find-element";
+import { useObserveElement } from "~/hooks/use-observe-element";
 
-// TODO: リストビューにも対応する。
+import { buttonStyle } from "./app.css";
+
+const date = "2025-04-22";
 
 export const App = () => {
   const { updateDailyNotePage } = useUpdateDailyNotePage();
 
+  const [popup, setPopup] = useState<Element | null>(null);
   const [popupHeader, setPopupHeader] = useState<Element | null>(null);
-  const [entry, setEntry] = useState<Entry>();
+  const [listItems, setListItems] = useState<Element[]>([]);
 
-  const observer = useMemo(
-    () =>
-      new MutationObserver(() => {
-        const popup = document.querySelector('[class*="TimeEntryContextPopup"]');
+  useObserveElement({
+    selector: '[class*="Page-EnhancedPage-EnhancedPage"] [class*="TimerContainer"]:nth-child(2)',
+  }).$(() => {
+    const popup = document.querySelector('[class*="TimeEntryContextPopup"]');
 
-        if (!popup) return;
-        setPopupHeader(popup.querySelector('[class*="ContextPopupControls"]') ?? null);
+    setPopup(popup);
+    setPopupHeader(popup?.querySelector('[class*="ContextPopupControls"]') ?? null);
+  });
 
-        const description = popup.querySelector('[class*="DescriptionTrigger"]')?.textContent;
-        const projectAndClient = popup.querySelector(
-          '[class*="ProjectContentContainer"]',
-        )?.textContent;
-        const [project, client] = projectAndClient?.split(" ") ?? ["", ""];
+  useObserveElement({
+    selector: '[class*="Page-EnhancedPage-EnhancedPage"] [class*="TimerContainer"]:nth-child(3)',
+  }).$((list) => {
+    const items = list.querySelectorAll(
+      '[class*="TimerItem"] [class*="DescriptionProjectWrapper"]',
+    );
+    setListItems(Array.from(items));
+  });
 
-        if (!description || !project || !client) return;
-        setEntry({ description: description, project: project, client: client });
-      }),
-    [],
-  );
+  const handleClick = async (popup: Element) => {
+    const description = popup.querySelector('[class*="DescriptionTrigger"]')?.textContent;
+    const projectAndClient = popup.querySelector('[class*="ProjectContentContainer"]')?.textContent;
+    const [project, client] = projectAndClient?.split(" ") ?? ["", ""];
 
-  useEffect(() => {
-    findElement('[class*="CalendarContainer"]').then((calendar) => {
-      observer.observe(calendar, { childList: true, subtree: true });
+    if (!description || !project || !client) return;
+
+    updateDailyNotePage({
+      entry: { client: client, project: project, description: description },
+      date: date,
     });
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [observer]);
-
-  const handleClick = async () => {
-    if (!entry) return;
-
-    updateDailyNotePage({ entry: entry, date: "2025-04-22" });
   };
 
-  return popupHeader
-    ? createPortal(
-        <button type="button" onClick={handleClick}>
-          <img src={notionLogo} alt="Notion" width={24} />
-        </button>,
-        popupHeader,
-      )
-    : null;
+  const handleListItemClick = (item: Element) => {
+    const description = item.querySelector('[class*="TimeEntryDescription"]')?.textContent;
+    const project = item.querySelector('[class*="ProjectLargeDot"]')?.textContent;
+    const client = item.querySelector('[class*="ClientName"]')?.textContent;
+
+    if (!description || !project || !client) return;
+
+    updateDailyNotePage({
+      entry: { client: client, project: project, description: description },
+      date: date,
+    });
+  };
+
+  return (
+    <>
+      {popup &&
+        popupHeader &&
+        createPortal(
+          <button type="button" onClick={() => handleClick(popup)}>
+            <img src={notionLogo} alt="Notion" width={24} />
+          </button>,
+          popupHeader,
+        )}
+      {listItems.map((item) => {
+        return createPortal(
+          <button className={buttonStyle} type="button" onClick={() => handleListItemClick(item)}>
+            <img src={notionLogo} alt="Notion" width={24} />
+          </button>,
+          item,
+        );
+      })}
+    </>
+  );
 };
