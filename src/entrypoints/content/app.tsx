@@ -6,8 +6,6 @@ import { useNotionConfigStorage } from "~/features/notion-config/storages/notion
 import { useUpdateDailyNotePage } from "~/features/togglink/hooks/use-update-daily-note-page";
 import { useObserveElement } from "~/hooks/use-observe-element";
 
-import { buttonStyle } from "./app.css";
-
 export const App = () => {
   const { updateDailyNotePage } = useUpdateDailyNotePage();
   const {
@@ -74,7 +72,7 @@ export const App = () => {
         )}
       {listItems.map((item) => {
         return createPortal(
-          <button className={buttonStyle} type="button" onClick={() => handleListItemClick(item)}>
+          <button type="button" onClick={() => handleListItemClick(item)}>
             <img src={notionLogo} alt="Notion" width={24} />
           </button>,
           item,
