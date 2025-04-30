@@ -1,9 +1,10 @@
 import { Client } from "@notionhq/client";
 
 import { NotionConfig } from "~/features/notion-config/storages/notion-config.storage";
+import { DateString } from "~/types";
 
 interface Criteria {
-  date: `${number}-${number}-${number}`;
+  date: DateString;
 }
 
 export const dailyNoteNotionApi = (notionConfig: NotionConfig) => {

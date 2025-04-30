@@ -2,15 +2,17 @@ import { useState } from "react";
 import { createPortal } from "react-dom";
 
 import notionLogo from "~/assets/img/notion-logo.svg";
+import { useNotionConfigStorage } from "~/features/notion-config/storages/notion-config.storage";
 import { useUpdateDailyNotePage } from "~/features/togglink/hooks/use-update-daily-note-page";
 import { useObserveElement } from "~/hooks/use-observe-element";
 
 import { buttonStyle } from "./app.css";
 
-const date = "2025-04-22";
-
 export const App = () => {
   const { updateDailyNotePage } = useUpdateDailyNotePage();
+  const {
+    notionConfig: { targetDate },
+  } = useNotionConfigStorage();
 
   const [popup, setPopup] = useState<Element | null>(null);
   const [popupHeader, setPopupHeader] = useState<Element | null>(null);
@@ -43,7 +45,7 @@ export const App = () => {
 
     updateDailyNotePage({
       entry: { client: client, project: project, description: description },
-      date: date,
+      date: targetDate,
     });
   };
 
@@ -56,7 +58,7 @@ export const App = () => {
 
     updateDailyNotePage({
       entry: { client: client, project: project, description: description },
-      date: date,
+      date: targetDate,
     });
   };
 

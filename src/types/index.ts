@@ -1,1 +1,1 @@
-export type DateString = `${number}-${number}-${number}`;
+export type DateString = `${number}-${number}-${number}` | "";

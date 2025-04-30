@@ -1,8 +1,9 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
-import { App } from "~/entrypoints/options/app";
 import { ThemeProvider } from "~/provider/theme-provider";
+
+import { App } from "./app";
 
 const root = document.getElementById("root");
 

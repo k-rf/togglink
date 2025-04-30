@@ -16,4 +16,4 @@ const baseStyle = style({
   borderRadius: 4,
 });
 
-export const rootStyle = style([baseStyle]);
+export const fieldStyle = style([baseStyle]);

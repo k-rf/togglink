@@ -1,30 +1,41 @@
 import { useCallback, useEffect, useState } from "react";
 import { storage } from "wxt/utils/storage";
 
+import { DateString } from "~/types";
+
 interface NotionConfigDataModelV1 {
   apiToken: string;
-  dailyNodeDatabaseId: string;
-  TodoDatabaseId: string;
+  dailyNoteDatabaseId: string;
+  todoRelationPropertyId: string;
+  todoDatabaseId: string;
+  targetDate: DateString;
 }
 
-export const notionConfigStorage = storage.defineItem<NotionConfigDataModelV1>(
-  "local:notionConfig",
-  {
-    version: 1,
-    init: () => ({
-      apiToken: "apiToken",
-      dailyNodeDatabaseId: "dailyNodeDatabaseId",
-      TodoDatabaseId: "TodoDatabaseId",
-    }),
-    fallback: { apiToken: "", dailyNodeDatabaseId: "", TodoDatabaseId: "" },
+const notionConfigStorage = storage.defineItem<NotionConfigDataModelV1>("local:notionConfig", {
+  version: 1,
+  init: () => ({
+    apiToken: "",
+    dailyNoteDatabaseId: "",
+    todoRelationPropertyId: "",
+    todoDatabaseId: "",
+    targetDate: "",
+  }),
+  fallback: {
+    apiToken: "",
+    dailyNoteDatabaseId: "",
+    todoRelationPropertyId: "",
+    todoDatabaseId: "",
+    targetDate: "",
   },
-);
+});
 
-export const useNotionConfigStorage = () => {
+const useNotionConfigStorage = () => {
   const [notionConfig, setNotionConfig] = useState<NotionConfigDataModelV1>({
     apiToken: "",
-    dailyNodeDatabaseId: "",
-    TodoDatabaseId: "",
+    dailyNoteDatabaseId: "",
+    todoRelationPropertyId: "",
+    todoDatabaseId: "",
+    targetDate: "",
   });
 
   useEffect(() => {
@@ -45,5 +56,11 @@ export const useNotionConfigStorage = () => {
     notionConfigStorage.setValue(data);
   }, []);
 
-  return { notionConfig, save };
+  return { notionConfig: notionConfig, save: save };
+};
+
+export {
+  type NotionConfigDataModelV1 as NotionConfig,
+  useNotionConfigStorage,
+  notionConfigStorage,
 };
